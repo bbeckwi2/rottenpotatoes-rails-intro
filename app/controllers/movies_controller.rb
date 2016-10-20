@@ -12,10 +12,32 @@ class MoviesController < ApplicationController
 
   def index
     @highlight = ""
-    @all_ratings = ['G','PG','PG-13','R']
+    @all_ratings = ['G','PG','PG-13','R','NC-17']
     @selectedMovies = []
     
+    if params[:reset] then
+      session.clear
+      redirect_to movies_path
+    end
+    
+    reDir = false
+    
+    if session[:ratings] != nil and params[:ratings] == nil then
+      params[:ratings] = session[:ratings]
+      reDir = true
+    end
+    
+    if session[:sort] != nil and params[:sort] == nil then
+      params[:sort] = session[:sort]
+      reDir = true
+    end
+    
+    if reDir then
+      redirect_to movies_path({:sort => params[:sort], :ratings => params[:ratings]})
+    end
+    
     if params[:ratings] != nil then
+      session[:ratings] = params[:ratings]
       params[:ratings].each do |rating|
         @selectedMovies += rating
       end
@@ -26,10 +48,9 @@ class MoviesController < ApplicationController
     if params[:sort] == nil then
       @movies = Movie.where({rating: @selectedMovies})
     elsif params[:sort] == "title" or params[:sort] == "release_date" then
-      @movies = Movie.order(params[:sort]).all
+      @movies = Movie.order(params[:sort]).where({rating: @selectedMovies})
+      session[:sort] = params[:sort]
       @highlight = params[:sort]
-    else
-      redirect_to movies_path
     end
   end
 
