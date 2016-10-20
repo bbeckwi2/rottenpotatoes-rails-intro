@@ -12,9 +12,19 @@ class MoviesController < ApplicationController
 
   def index
     @highlight = ""
-    @all_ratings = ['G','PG','PG-13', 'R']
+    @all_ratings = ['G','PG','PG-13','R']
+    @selectedMovies = []
+    
+    if params[:ratings] != nil then
+      params[:ratings].each do |rating|
+        @selectedMovies += rating
+      end
+    else
+      @selectedMovies = @all_ratings
+    end
+    
     if params[:sort] == nil then
-      @movies = Movie.all
+      @movies = Movie.where({rating: @selectedMovies})
     elsif params[:sort] == "title" or params[:sort] == "release_date" then
       @movies = Movie.order(params[:sort]).all
       @highlight = params[:sort]
