@@ -12,6 +12,7 @@ class MoviesController < ApplicationController
 
   def index
     @highlight = ""
+    @all_ratings = ['G','PG','PG-13', 'R']
     if params[:sort] == nil then
       @movies = Movie.all
     elsif params[:sort] == "title" or params[:sort] == "release_date" then
